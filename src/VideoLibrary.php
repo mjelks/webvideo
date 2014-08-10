@@ -2,28 +2,35 @@
 
 // need to add the following to the /etc/apache2/extra/httpd-vhosts.conf file:
 /*
-Listen 5180
+
+ Listen 5180
 <VirtualHost *:5180>
-  ServerAdmin webmaster@zaftig.net
-  DocumentRoot "/Users/mjelks/Sites/test"
-  ServerName www.test.dev
-  ScriptAlias /cgi-bin/ /Users/mjelks/Sites/test/cgi-bin/
-  ErrorLog /var/log/httpd/test-error_log
-  CustomLog /var/log/httpd/test-access_log common
+  ServerAdmin webmaster@domain.com
+  DocumentRoot /path/to/webroot
+  ServerName www.servername.dev
+  ServerAlias servername.dev
+  ErrorLog /path/to/error_log
+  CustomLog /path/to/access_log common
 </VirtualHost>
-*/
-//$device = (stristr($_SERVER['HTTP_USER_AGENT'],"iphone")) ? 'iphone' : 'ipad';
-//$device = 'iphone';
+ 
+ */
+
 
 class VideoLibrary
 {
-    // all config is stored in our library file
-	// needs 777 access for now
-	public $library_file = "src/library/library.src";
-	public $ignore_file = "src/library/ingore.src";
+	/* USER CONFIG AREA */
 	
 	// movies stored in this folder
 	public $mediapath = "media";
+	// file extensions supported by your device (iOS in this case)
+	public $extensions = "m4v|mp4|mov";
+	
+	/* END USER CONFIG AREA */
+	
+	// all config is stored in our library file
+	// needs 777 access for now
+	public $library_file = "src/library/library.src";
+	public $ignore_file = "src/library/ingore.src";
 	
 	public $library;
 	
@@ -48,7 +55,7 @@ class VideoLibrary
 	  $lines = explode("\n",file_get_contents($library));
 	  $fh = fopen($library, 'a+') or die("can't open file");
 	  foreach ($files as $file) {
-		if (preg_match("/(.+)\.(m4v|mp4|mov)/",$file)) {
+		if (preg_match("/(.+)\.($this->extensions)/",$file,$matches)) {
 		  $match = false;
 		  foreach ($lines as $line) {
 			if (strstr($line, $file)) {
@@ -59,7 +66,8 @@ class VideoLibrary
 		  }
 		  if (!$match) {
 			$stat = filemtime($path."/".$file);
-			$props = array('mtime' => $stat);
+			$short_name = substr($file, 0, 20);
+			$props = array('mtime' => $stat, 'rating' => 1, 'short_name' => $short_name );
 			$meta = serialize($props);
 			fwrite($fh,"$file|$meta\n");
 			$library_array[$file] = $props;

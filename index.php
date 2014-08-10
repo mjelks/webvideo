@@ -4,6 +4,7 @@
   $library = new VideoLibrary();
   $counter = 1;
   $title = "MGJ Theater";
+  $panel_title = "Da Movies";
 ?>
 
 <!DOCTYPE html>
@@ -38,25 +39,18 @@
 		<div class="col-lg-12">
 		  <div class="list-group">
 			<a href="#" class="list-group-item active">
-			  Da Movies
+			  <?php echo $panel_title; ?>
 			</a>
 			 <?php 
 			  foreach ($library->getLibrary() as $movie => $meta):
 			  ?>
 				<a href="<?php echo $library->getMediaPath() . '/' . $movie ?>" 
-				   class="list-group-item">
+				   class="list-group-item movie_listing"
+				   title="<?php echo $movie; ?>"
+				   short_name="<?php echo $meta['short_name']; ?>"
+			    >
 				  <?php echo $movie; ?>
                 </a>
-                
-
-		 
-<!--			  <tr>
-				<td>1</td>
-				<td><?php echo $counter++; ?></td>
-				<td><?php echo $movie; ?></td>
-				<td><?php echo $meta['mtime']; ?></td>
-			  </tr>-->
-
 			<?php  endforeach; ?>
 		  </div>	
 		</div>
@@ -66,5 +60,24 @@
     <script src="js/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/bootstrap.min.js"></script>
+	<script>
+	  checkWidth();
+	  function checkWidth() {
+		//console.log($(this).width());
+		if ($(this).width() < 600) {
+		  // truncate the text
+		  $(".movie_listing").each(function(val) {
+			$(this).text($(this).attr('short_name'));
+		  });
+		} else {
+		  $(".movie_listing").each(function(idx, val) {
+			$(this).text($(this).attr('title'));
+		  });
+		}
+	  }
+	  $(window).resize(function() {
+		checkWidth();
+	  });
+	</script>  
   </body>
 </html>
