@@ -1,0 +1,36 @@
+/* 
+    Document   : custom
+    Created on : Aug 10, 2014, 3:24:12 PM
+    Author     : mjelks
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+.modal-dialog-center {
+  margin-top: 25%;
+}
+
+.rating, .ignore, #progress {
+  display: none;
+}
+
+
+.go-back {
+  margin-top: 20px;
+}
+
+.btn.play {
+  margin-right: 15px;
+}
+
+.btn.rate {
+  margin-right: 15px;
+}
+
+.top5 { margin-top:5px; }
+.top7 { margin-top:7px; }
+.top10 { margin-top:10px; }
+.top15 { margin-top:15px; }
+.top17 { margin-top:17px; }
+.top30 { margin-top:30px; }
+

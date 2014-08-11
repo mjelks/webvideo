@@ -45,7 +45,7 @@ class VideoLibrary
 	
     // method declaration
     public function getLibrary() {
-        return $this->library;
+	  return $this->library;
     }
 	
 	private function loadLibrary($library, $path) {
@@ -61,50 +61,64 @@ class VideoLibrary
 			if (strstr($line, $file)) {
 			  $match = true;
 			  $meta = explode("|",$line);
-			  $library_array[$file] = unserialize($meta[1]);
+			  $library_array[] = unserialize($meta[1]);
 			}
 		  }
 		  if (!$match) {
 			$stat = filemtime($path."/".$file);
-			$short_name = substr($file, 0, 20);
-			$props = array('mtime' => $stat, 'rating' => 1, 'short_name' => $short_name );
+			$short_name = substr($file, 0, 24);
+			$props = array('name' => $file, 'mtime' => $stat, 'rating' => 0, 'short_name' => $short_name, 'ignore' => false );
 			$meta = serialize($props);
 			fwrite($fh,"$file|$meta\n");
-			$library_array[$file] = $props;
+			$library_array[] = $props;
 		  }
 
 		}
 	  }
 	  fclose($fh);
-
+	  
 	  return $library_array;
 	}
-
 	
-	//$library_array = $files = load_library($library,$path);
-
-	/*
-	// ignore section -- this is used to remove watched movies from our list (but doesn't delete files)
-	$ignorepath = $basepath . "/src/ignorelist/ignore.txt";
-
-	if (isset($_GET['ignore'])) {
-	  $handle = fopen($ignorepath, "a");
-	  foreach ($_GET['ignore'] as $k => $movie)
-	  {
-		fwrite($handle,$movie . "\n");
+	public function sortLibrary($type) {
+	  
+	  if ($type == "mtime") {
+		usort($this->library, function($a, $b) {
+		  return $b['mtime'] - $a['mtime'];
+		});
 	  }
-	  fclose($handle);
+	  
+	  if ($type == "rating") {
+		usort($this->library, function($a, $b) {
+		  return $b['rating'] - $a['rating'];
+		});
+	  }
 	}
-
-
-	$ignorelist = array();
-	// get contents of a file into a string
-	// annoying weirdness -- this adds a newline -- so comparisons won't work unless
-	// you do a trim or add \n to your other compare array
-	$ignorelist = file($ignorepath);
-	*/
-
-
+	
+	public function getFriendlyName($movie) {
+	  $patterns = array('/_/', "/$this->extensions/");
+	  $replacements = array(' ', '');
+	  
+	  return preg_replace($patterns, $replacements, $movie);
+	}
+	
+	public function updateRating($movie, $rating) {
+	  $lines = explode("\n",file_get_contents($this->library_file));
+	  $fh = fopen($this->library_file, 'w') or die("can't open file");
+	  foreach ($lines as $line) {
+		if (strstr($line, $movie)) {
+		  $meta = explode("|",$line);
+		  $library_array = unserialize($meta[1]);
+		  $library_array['rating'] = $rating;
+		  $meta = serialize($library_array);
+		  fwrite($fh,"$movie|$meta\n");
+		}
+		else {
+		  fwrite($fh, $line . "\n");
+		}
+	  }
+	  fclose($fh);
+	}
 	
 }
 ?>
